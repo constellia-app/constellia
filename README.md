@@ -3,6 +3,10 @@
 </p>
 
 <p align="center">
+  <em>Recognising constellations from a photo of the night sky.</em>
+</p>
+
+<p align="center">
   <img src="docs/assets/hq.png" alt="Night sky with constellations" width="100%">
 </p>
 
@@ -15,7 +19,7 @@ a photograph of the night sky.
 
 ## Project tracking
 
-- [Weekly progress reports]([https://drive.google.com/drive/folders/1IVzTJYrK2hULdZw-JGjekjiIKJOGZqGF?usp=drive_link])
+- [Weekly progress reports](https://drive.google.com/drive/folders/1IVzTJYrK2hULdZw-JGjekjiIKJOGZqGF?usp=drive_link)
 
 ## Team
 
