@@ -86,7 +86,7 @@ class StarDetector:
         return Detection(stars, self.width, self.height)
 
 def main():
-    detection = StarDetector(Path("data/photos_reelles/20260925_002528.jpg")).detect()
+    detection = StarDetector(Path("detection/input/5EDC6EFC-96D4-4133-B3E6-95080B4A5F90.jpg")).detect()
     print("Image: "+str(detection.width)+" x "+str(detection.height))
     print("Stars found: "+str(len(detection.stars)))
     for star in detection.stars:
