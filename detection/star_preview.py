@@ -3,8 +3,9 @@ import cv2
 import numpy as np
 from star_detection import Detection, StarDetector
 
-PHOTO = Path("detection/input/5EDC6EFC-96D4-4133-B3E6-95080B4A5F90.jpg")
-OUTPUT = Path("detection/output/star_preview.png")
+FOLDER = Path(__file__).parent
+PHOTO = FOLDER / "input" / "5EDC6EFC-96D4-4133-B3E6-95080B4A5F90.jpg"
+OUTPUT = FOLDER / "output" / "star_preview.png"
 
 # reads the photo in color, at the same size as the one used by the detector
 def read_photo(path: Path, detection: Detection) -> np.ndarray:
