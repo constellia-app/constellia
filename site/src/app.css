@@ -1,0 +1,29 @@
+:root {
+  --night: #070b1a;
+  --soft-text: #b8c2d9;
+
+  color-scheme: dark;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color: white;
+  background: var(--night);
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2 {
+  line-height: 1.2;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.soft {
+  color: var(--soft-text);
+}
