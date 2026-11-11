@@ -7,6 +7,7 @@ const softText = Color(0xFFB8C2D9);
 
 const logo = 'assets/images/logo.png';
 const banner = 'assets/images/banniere.png';
+const starImage = 'assets/images/etoile.png';
 
 const maxWidth = 480.0;
 
@@ -35,3 +36,11 @@ final theme = ThemeData(
 Widget whiteLogo(double height) {
   return Image.asset(logo, height: height, color: Colors.white, colorBlendMode: BlendMode.srcIn);
 }
+
+const constellationNameStyle = TextStyle(
+  color: Colors.white,
+  fontSize: 12,
+  letterSpacing: 2.5,
+  fontWeight: FontWeight.w500,
+  shadows: [Shadow(color: Colors.black, blurRadius: 6)],
+);

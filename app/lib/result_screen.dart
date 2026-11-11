@@ -1,17 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'analysis.dart';
+import 'annotated_photo.dart';
 import 'style.dart';
 
 class ResultScreen extends StatelessWidget {
   final Uint8List photo;
+  final Analysis? analysis;
   final VoidCallback back;
   final VoidCallback newPhoto;
 
-  const ResultScreen({super.key, required this.photo, required this.back, required this.newPhoto});
+  const ResultScreen(
+      {super.key, required this.photo, required this.analysis, required this.back, required this.newPhoto});
 
   @override
   Widget build(BuildContext context) {
+    final analysis = this.analysis;
     return Column(
       children: [
         Row(
@@ -25,7 +30,10 @@ class ResultScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             children: [
-              ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.memory(photo)),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: analysis == null ? Image.memory(photo) : AnnotatedPhoto(analysis),
+              ),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: newPhoto,
