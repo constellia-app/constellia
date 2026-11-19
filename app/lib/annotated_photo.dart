@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 
 import 'analysis.dart';
 import 'constellation_names.dart';
+import 'star_card.dart';
 import 'style.dart';
 
 const starSize = 44.0;
 const computedOpacity = 0.5;
 const labelHeight = 20.0;
+const touchRadius = 24.0;
 
 class AnnotatedPhoto extends StatelessWidget {
   final Analysis analysis;
@@ -21,23 +23,41 @@ class AnnotatedPhoto extends StatelessWidget {
       aspectRatio: analysis.width / analysis.height,
       child: LayoutBuilder(builder: (context, size) {
         final scale = size.maxWidth / analysis.width;
-        return Stack(
-          children: [
-            Positioned.fill(child: Image.memory(analysis.photo, fit: BoxFit.fill)),
-            Positioned.fill(child: CustomPaint(painter: LinesPainter(analysis.lines, scale))),
-            for (final star in analysis.computed) PlacedStar(star, scale, opacity: computedOpacity),
-            for (final star in analysis.stars) PlacedStar(star, scale),
-            for (final constellation in analysis.constellations)
-              if (analysis.confirmed.contains(constellation.name))
-                Positioned(
-                  left: constellation.box.left * scale,
-                  top: constellation.box.top * scale - labelHeight,
-                  child: Text(frenchName(constellation.name).toUpperCase(), style: constellationNameStyle),
-                ),
-          ],
+        return GestureDetector(
+          onTapUp: (details) => _openClosestStar(context, details.localPosition, scale),
+          child: Stack(
+            children: [
+              Positioned.fill(child: Image.memory(analysis.photo, fit: BoxFit.fill)),
+              Positioned.fill(child: CustomPaint(painter: LinesPainter(analysis.lines, scale))),
+              for (final star in analysis.computed) PlacedStar(star, scale, opacity: computedOpacity),
+              for (final star in analysis.stars) PlacedStar(star, scale),
+              for (final constellation in analysis.constellations)
+                if (analysis.confirmed.contains(constellation.name))
+                  Positioned(
+                    left: constellation.box.left * scale,
+                    top: constellation.box.top * scale - labelHeight,
+                    child: Text(frenchName(constellation.name).toUpperCase(), style: constellationNameStyle),
+                  ),
+            ],
+          ),
         );
       }),
     );
+  }
+
+  void _openClosestStar(BuildContext context, Offset finger, double scale) {
+    NamedStar? closest;
+    var distance = touchRadius;
+    for (final star in [...analysis.stars, ...analysis.computed]) {
+      final d = (Offset(star.position.x, star.position.y) * scale - finger).distance;
+      if (d < distance) {
+        distance = d;
+        closest = star;
+      }
+    }
+    if (closest != null) {
+      openStarCard(context, closest, seen: analysis.stars.contains(closest));
+    }
   }
 }
 

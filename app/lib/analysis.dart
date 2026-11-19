@@ -8,8 +8,11 @@ const exampleAnalysis = 'assets/example/analysis.json';
 class NamedStar {
   final Point<double> position;
   final int hip;
+  final String name;
+  final String constellation;
+  final double magnitude;
 
-  const NamedStar(this.position, this.hip);
+  const NamedStar(this.position, this.hip, this.name, this.constellation, this.magnitude);
 }
 
 class ConstellationLine {
@@ -43,7 +46,8 @@ class Analysis {
 
   factory Analysis.fromJson(Map<String, dynamic> json, Uint8List photo) {
     Point<double> point(num x, num y) => Point(x.toDouble(), y.toDouble());
-    NamedStar star(List values) => NamedStar(point(values[0], values[1]), values[2] as int);
+    NamedStar star(List values) => NamedStar(point(values[0], values[1]), values[2] as int,
+        values[3] as String, values[4] as String, (values[5] as num).toDouble());
     Rect box(List values) => Rect.fromLTRB((values[0] as num).toDouble(), (values[1] as num).toDouble(),
         (values[2] as num).toDouble(), (values[3] as num).toDouble());
 

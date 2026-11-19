@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'analysis.dart';
 import 'annotated_photo.dart';
+import 'star_table.dart';
 import 'style.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -34,6 +35,7 @@ class ResultScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 child: analysis == null ? Image.memory(photo) : AnnotatedPhoto(analysis),
               ),
+              if (analysis != null) PhotoStars(analysis),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: newPhoto,
