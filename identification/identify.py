@@ -3,6 +3,7 @@ from pathlib import Path
 import itertools
 import math
 import sys
+import cv2
 import numpy as np
 
 FOLDER = Path(__file__).parent
@@ -17,6 +18,7 @@ from star_detection import StarDetector
 from star_map import SIZE
 
 PHOTOS = FOLDER.parent / "detection" / "input"
+OUTPUT = FOLDER / "output"
 BOX_MARGIN = 0.15 # the YOLO box is widened by 15 % on each side
 DRAWING_TOLERANCE = 0.05 # a star falls on a point within 5 % of the size of the drawing
 NAMING_TOLERANCE_PX = 5 # max distance between a placed star and a detected point
@@ -26,6 +28,7 @@ CANDIDATES_PER_POINT = 2 # catalogue stars tried for each detected point
 REFINEMENTS = 3
 MAX_ERROR_DEG = 0.35 # beyond this, the stars do not fall well enough and we say we do not know
 MIN_NAMED = 4
+COLOR = (0, 180, 255)
 
 type Box = tuple[float, float, float, float] # left, top, right, bottom
 
@@ -133,6 +136,11 @@ class Identifier:
                 names[closest] = self.stars[i]
         return names
 
+    # where a star of the catalogue falls on the photo, even if it was not detected
+    def place(self, star: CatalogStar, orientation: Orientation, width: int, height: int) -> tuple[float, float]:
+        camera = orientation.rotation @ direction(star.ra, star.dec)
+        return width / 2 + orientation.focal * camera[0] / camera[2], height / 2 + orientation.focal * camera[1] / camera[2]
+
     # the whole chain, or None if we do not know
     def identify(self, points: np.ndarray, width: int, height: int, box: Box,
                  constellation: str) -> Identification | None:
@@ -188,8 +196,27 @@ def box_on_photo(box: Box, width: int, height: int) -> Box:
     left, top, right, bottom = box
     return ((left - offset_x) / scale, (top - offset_y) / scale, (right - offset_x) / scale, (bottom - offset_y) / scale)
 
+# draws the constellation, the Hipparcos number of each named star, and the stars of the drawing that the photo does not show
+def draw(identifier: Identifier, photo: Path, width: int, height: int, points: np.ndarray,
+         result: Identification) -> np.ndarray:
+    image = cv2.resize(cv2.imread(str(photo)), (width, height), interpolation=cv2.INTER_AREA)
+    named = {star.hip: (int(x), int(y)) for (x, y), star in zip(points, result.names) if star is not None}
+    places = dict(named)
+    for hip in {hip for line in FIGURES[result.constellation] for hip in line}:
+        if hip not in named:
+            x, y = identifier.place(identifier.by_hip[hip], result.orientation, width, height)
+            places[hip] = (int(x), int(y))
+            cv2.circle(image, places[hip], 6, COLOR, 1, cv2.LINE_AA) # a computed star, thinner
+    for a, b in FIGURES[result.constellation]:
+        cv2.line(image, places[a], places[b], COLOR, 2, cv2.LINE_AA)
+    for hip, (x, y) in named.items():
+        cv2.circle(image, (x, y), 9, COLOR, 2, cv2.LINE_AA)
+        cv2.putText(image, str(hip), (x + 12, y - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR, 1, cv2.LINE_AA)
+    return image
+
 # names the stars of our two photos of the Big Dipper, from the box YOLO found on their map
 def main():
+    OUTPUT.mkdir(exist_ok=True)
     identifier = Identifier(read_catalog())
     for name, box in EXAMPLES.items():
         detection = StarDetector(PHOTOS / name).detect()
@@ -205,6 +232,8 @@ def main():
               +str(round(result.orientation.error_deg, 3))+" deg")
         for star in named:
             print("  HIP "+str(star.hip)+", magnitude "+str(star.magnitude))
+        image = draw(identifier, PHOTOS / name, detection.width, detection.height, points, result)
+        cv2.imwrite(str(OUTPUT / (Path(name).stem + ".png")), image)
 
 if __name__ == "__main__":
     main()
